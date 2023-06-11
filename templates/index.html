@@ -13,7 +13,12 @@
         <v-app>
             <v-main>
                 <v-container>
-                    <v-btn class="success">Some Button</v-btn>
+                    <v-row>
+                        <v-col v-for="room in rooms" class="d-flex justify-center">
+                            <v-btn class="success">[[ room ]]</v-btn>
+                        </v-col>
+                    </v-row>
+                    <p v-for="msg in messages">[[ msg ]]</p>
                 </v-container>
             </v-main>
         </v-app>
