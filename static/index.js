@@ -5,7 +5,8 @@ const app = new Vue({
   data: {
     rooms: [],
     messages: [],
-    chosenRoom: null
+    chosenRoom: null,
+    socket: null
   },
   methods: {
     loadRooms () {
@@ -14,31 +15,38 @@ const app = new Vue({
       then(data => {
         this.rooms = data
         this.chosenRoom = data[0]
+        this.joinRoom(this.chosenRoom)
+        })
+    },
+    joinRoom (room) {
+      this.socket.emit('join', this.chosenRoom, messages => {
+        for (const message of messages) {
+          console.log(message)
+          this.messages.push(message)
+        }
       })
+    },
+    leaveRoom (room) {
+      this.socket.emit('leave', this.chosenRoom)
     },
     buttonColor (room) {
       return room === this.chosenRoom ? 'primary' : 'success'
     },
     onRoomButtonClick (room) {
-      this.chosenRoom = room
+      if (room !== this.chosenRoom) {
+        this.messages.splice(0, this.messages.length)
+        this.leaveRoom(this.chosenRoom)
+        this.chosenRoom = room
+        this.joinRoom(this.chosenRoom)
+      }
     }
   },
   created() {
-    this.loadRooms()
-    const socket = io('/some_namespace');
-    socket.emit(
-        'join',
-        'room 1',
-        messages => {
-          for (const message of messages) {
-            console.log(message)
-            this.messages.push(message)
-          }
-        }
-    )
-    socket.on('some_event', (data) => {
+    this.socket = io('/some_namespace');
+    this.socket.on('some_event', (data) => {
       console.log('Received message:', data);
       this.messages.push(data)
     })
+    this.loadRooms()
   }
 })
