@@ -1,8 +1,21 @@
+import datetime
+import random
 import threading
 import time
+import pydantic
 from typing import Optional
 
 from flask_socketio import SocketIO
+
+
+class LogEntry(pydantic.BaseModel):
+    time: datetime.datetime
+    source: str
+    level: str
+    message: str
+
+
+LEVELS = ['SUCCESS', 'WARNING', 'FAILURE']
 
 
 class Emitter(threading.Thread):
@@ -13,21 +26,26 @@ class Emitter(threading.Thread):
         self._socket = socket
         self._namespace = namespace
         self._room = room
-        self._messages = []
+        self._messages: list[LogEntry] = []
 
     @property
     def messages(self) -> list:
-        return self._messages
+        return [msg.json() for msg in self._messages]
 
     def run(self) -> None:
         counter = 0
         while True:
-            print(f'emitting event from "{self._name}"')
-            self._messages.append({'emitter': self._name, 'message': f'message {counter}'})
-
+            self._messages.append(
+                LogEntry(
+                    time=datetime.datetime.now(),
+                    source=self._name,
+                    level=random.choice(LEVELS),
+                    message='some message'
+                )
+            )
             self._socket.emit(
                 event='some_event',
-                data=self._messages[-1],
+                data=self._messages[-1].json(),
                 namespace=self._namespace,
                 room=self._room
             )
