@@ -4,7 +4,7 @@ import threading
 import time
 import pydantic
 from typing import Optional
-
+from faker import Faker
 from flask_socketio import SocketIO
 
 
@@ -33,6 +33,7 @@ class Emitter(threading.Thread):
         return [msg.json() for msg in self._messages]
 
     def run(self) -> None:
+        fake = Faker()
         counter = 0
         while True:
             self._messages.append(
@@ -40,7 +41,7 @@ class Emitter(threading.Thread):
                     time=datetime.datetime.now(),
                     source=self._name,
                     level=random.choice(LEVELS),
-                    message='some message'
+                    message=fake.paragraph(nb_sentences=random.randint(1, 10))
                 )
             )
             self._socket.emit(
