@@ -15,7 +15,9 @@
                 <v-container>
                     <v-row>
                         <v-col v-for="room in rooms" class="d-flex justify-center">
-                            <v-btn class="success">[[ room ]]</v-btn>
+                            <v-btn elevation="0" :color="buttonColor(room)" @click="onRoomButtonClick(room)">
+                                [[ room ]]
+                            </v-btn>
                         </v-col>
                     </v-row>
                     <p v-for="msg in messages">[[ msg ]]</p>

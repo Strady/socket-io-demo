@@ -4,13 +4,23 @@ const app = new Vue({
   vuetify: new Vuetify({theme: {light: true}}),
   data: {
     rooms: [],
-    messages: []
+    messages: [],
+    chosenRoom: null
   },
   methods: {
     loadRooms () {
       fetch('/api/rooms').
       then(response => response.json()).
-      then(data => this.rooms = data)
+      then(data => {
+        this.rooms = data
+        this.chosenRoom = data[0]
+      })
+    },
+    buttonColor (room) {
+      return room === this.chosenRoom ? 'primary' : 'success'
+    },
+    onRoomButtonClick (room) {
+      this.chosenRoom = room
     }
   },
   created() {
