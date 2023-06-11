@@ -9,13 +9,13 @@ from flask_socketio import SocketIO
 
 
 class LogEntry(pydantic.BaseModel):
-    time: datetime.datetime
+    time: str
     source: str
     level: str
     message: str
 
 
-LEVELS = ['SUCCESS', 'WARNING', 'FAILURE']
+LEVELS = ['INFO'] * 5 + ['SUCCESS', 'WARNING', 'FAILURE']
 
 
 class Emitter(threading.Thread):
@@ -30,7 +30,7 @@ class Emitter(threading.Thread):
 
     @property
     def messages(self) -> list:
-        return [msg.json() for msg in self._messages]
+        return [msg.dict() for msg in self._messages]
 
     def run(self) -> None:
         fake = Faker()
@@ -38,7 +38,7 @@ class Emitter(threading.Thread):
         while True:
             self._messages.append(
                 LogEntry(
-                    time=datetime.datetime.now(),
+                    time=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     source=self._name,
                     level=random.choice(LEVELS),
                     message=fake.paragraph(nb_sentences=random.randint(1, 10))
@@ -46,12 +46,12 @@ class Emitter(threading.Thread):
             )
             self._socket.emit(
                 event='some_event',
-                data=self._messages[-1].json(),
+                data=self._messages[-1].dict(),
                 namespace=self._namespace,
                 room=self._room
             )
             counter += 1
-            time.sleep(3)
+            time.sleep(1)
 
 
 class EmittersManager:

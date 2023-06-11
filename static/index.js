@@ -6,7 +6,13 @@ const app = new Vue({
     rooms: [],
     messages: [],
     chosenRoom: null,
-    socket: null
+    socket: null,
+    tableHeaders: [
+        { text: 'Time', value: 'time' },
+        { text: 'Source', value: 'source' },
+        { text: 'Message', value: 'message' }
+    ],
+    itemClass: 'indigo'
   },
   methods: {
     loadRooms () {
@@ -21,7 +27,6 @@ const app = new Vue({
     joinRoom (room) {
       this.socket.emit('join', this.chosenRoom, messages => {
         for (const message of messages) {
-          console.log(message)
           this.messages.push(message)
         }
       })
@@ -39,12 +44,20 @@ const app = new Vue({
         this.chosenRoom = room
         this.joinRoom(this.chosenRoom)
       }
+    },
+    getItemStyle(item) {
+      const alpha = 0.1
+      const colorsMap = {
+        SUCCESS: `rgba(76, 175, 80, ${alpha})`,
+        WARNING: `rgba(255, 152, 0, ${alpha})`,
+        FAILURE: `rgba(244, 67, 54, ${alpha})`
+      }
+      return colorsMap[item.level] ? { 'background-color': colorsMap[item.level] } : {};
     }
   },
   created() {
     this.socket = io('/some_namespace');
     this.socket.on('some_event', (data) => {
-      console.log('Received message:', data);
       this.messages.push(data)
     })
     this.loadRooms()

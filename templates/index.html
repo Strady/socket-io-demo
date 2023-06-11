@@ -20,7 +20,28 @@
                             </v-btn>
                         </v-col>
                     </v-row>
-                    <p v-for="msg in messages">[[ msg ]]</p>
+                    <div style="height: 600px; overflow-y: auto">
+                        <v-data-table
+                            :headers="tableHeaders"
+                            :items="messages"
+                            item-key="time"
+                            elevation="0"
+                            disable-sort
+                            disable-pagination
+                            hide-default-footer
+                            fixed-header
+                            dense
+                            :items-per-page="-1"
+                        >
+                            <template #item="{ item }">
+                              <tr :style="getItemStyle(item)">
+                                <td style="white-space: nowrap; vertical-align: top">[[ item.time ]]</td>
+                                <td style="white-space: nowrap; vertical-align: top">[[ item.source ]]</td>
+                                <td>[[ item.message ]]</td>
+                              </tr>
+                            </template>
+                        </v-data-table>
+                    </div>
                 </v-container>
             </v-main>
         </v-app>
